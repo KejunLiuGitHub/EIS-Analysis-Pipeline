@@ -1,0 +1,18 @@
+# Binary raw data (BioLogic EC-Lab)
+*.mpr
+*.mps
+*.sta
+
+# Archives
+*.zip
+
+# macOS
+.DS_Store
+
+# LaTeX temp
+*.aux
+*.log
+*.out
+
+# PDF (large, read-only reference docs)
+*.pdf
