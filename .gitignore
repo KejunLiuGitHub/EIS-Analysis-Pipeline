@@ -14,7 +14,6 @@
 *.log
 *.out
 
-# PDF (large, read-only reference docs)
+# Figures and PDFs (generated/large files)
 *.pdf
 *.png
-*.pdf
