@@ -17,3 +17,6 @@
 # Figures and PDFs (generated/large files)
 *.pdf
 *.png
+
+# Python cache
+__pycache__/
