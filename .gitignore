@@ -20,3 +20,9 @@
 
 # Python cache
 __pycache__/
+
+# Archive (outdated files, preserved but not tracked)
+archive/
+
+# Raw data directory
+data/
