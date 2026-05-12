@@ -1,0 +1,4 @@
+galvani
+impedance==1.7.1
+numpy
+plotly

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eis-pipeline"
+version = "1.0.0"
+description = "Zero-code EIS batch analysis pipeline for polymer electrolyte impedance spectroscopy"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "galvani",
+    "impedance==1.7.1",
+    "numpy",
+    "plotly",
+]
+
+[project.scripts]
+eis-pipeline = "eis_pipeline:main"
+
+[tool.setuptools]
+py-modules = ["eis_pipeline", "analyze_one"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["eislib*"]
