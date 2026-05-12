@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EIS Analysis of GPE Solid Electrolyte — GPE_h3_131_C01</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    macros: {
+      Re: '\\operatorname{Re}',
+      Im: '\\operatorname{Im}',
+      CPE: '\\mathrm{CPE}',
+      Ohm: '\\,\\Omega',
+      kHz: '\\,\\mathrm{kHz}',
+      MHz: '\\,\\mathrm{MHz}',
+      Hz: '\\,\\mathrm{Hz}',
+      um: '\\,\\mu\\mathrm{m}',
+      uF: '\\,\\mu\\mathrm{F}',
+      Spercm: '\\,\\mathrm{S\\,cm^{-1}}',
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+  :root {
+    --bg: #fafafa; --text: #2d2d2d; --accent: #2166ac;
+    --red: #d6604d; --green: #4dac26; --purple: #9467bd;
+    --gray: #f0f0f0; --border: #e0e0e0; --code-bg: #f5f5f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.7; color: var(--text); background: var(--bg);
+    max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem;
+  }
+  h1 { font-size: 1.75rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.5rem; margin: 2rem 0 1rem; }
+  h2 { font-size: 1.35rem; margin: 2rem 0 0.75rem; color: var(--accent); }
+  h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: #444; }
+  h4 { font-size: 1rem; margin: 1rem 0 0.4rem; }
+  p, li { margin-bottom: 0.5rem; }
+  .abstract { background: #f0f5fc; border-left: 4px solid var(--accent); padding: 1rem 1.2rem; margin: 1.5rem 0; font-size: 0.92rem; }
+  .boxed { display: inline-block; border: 2px solid var(--red); padding: 0.3rem 0.8rem; font-weight: bold; font-size: 1.1rem; }
+  figure { margin: 1.5rem 0; text-align: center; }
+  figure img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  figcaption { font-size: 0.88rem; color: #666; margin-top: 0.4rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { padding: 0.5rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--gray); font-weight: 600; }
+  tr:hover { background: #fafafa; }
+  .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1rem 1.2rem; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5; margin: 1rem 0; white-space: pre; }
+  .note { background: #fff8e1; border-left: 4px solid #ffa000; padding: 0.8rem 1rem; margin: 1rem 0; font-size: 0.9rem; }
+  .warn { background: #ffe8e8; border-left: 4px solid #d6604d; padding: 0.8rem 1rem; margin: 1rem 0; font-size: 0.9rem; }
+  .toc { background: var(--gray); padding: 1rem 1.5rem; border-radius: 4px; margin: 1.5rem 0; }
+  .toc ol { margin-left: 1.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  ol, ul { margin-left: 1.5rem; }
+  .highlight-box { border: 2px solid var(--green); border-radius: 6px; padding: 1rem 1.2rem; margin: 1.5rem 0; background: #f6faf3; }
+</style>
+</head>
+<body>
+
+<h1>Electrochemical Impedance Spectroscopy Analysis<br>of GPE Solid Electrolyte</h1>
+<p><strong>Sample:</strong> GPE_h3_131_C01 &ensp;|&ensp; <strong>Date:</strong> 2024-12-19 &ensp;|&ensp; <strong>Instrument:</strong> BioLogic Potentiostat (EC-Lab v11.62)</p>
+
+<div class="abstract">
+<strong>Abstract.</strong>
+EIS analysis of a GPE (gel polymer electrolyte) thin film in a symmetric SS | GPE | SS configuration, 7 MHz → 1 Hz. Data cleaning removed 16 inductive artifact points ($f > 216$ kHz) from cable parasitic inductance. The best-fitting equivalent circuit model is $R_0 + (R_1 \parallel \mathrm{CPE}_1) + (R_2 \parallel \mathrm{CPE}_2)$ with $\chi^2/(N-p) = 23.0$. Fitted parameters: $R_0 = 20.2\ \Omega$, $R_1 = 653\ \Omega$ ($f_{c,1} = 46$ Hz), $R_2 = 3455\ \Omega$ ($f_{c,2} = 0.13$ Hz). Total DC resistance $R_{\mathrm{DC}} = 4128\ \Omega$ yields $\sigma = 9.3 \times 10^{-7}\ \mathrm{S\,cm^{-1}}$ ($L = 30\ \mu\mathrm{m}$, $A = 0.785\ \mathrm{cm}^2$). The zero-crossing of $\Im(Z)$ at 171.6 kHz ($29.7\ \Omega$) is identified as $R_0$ plus residual bulk tail, not the full bulk resistance $R_b$.
+</div>
+
+<div class="toc">
+<strong>Contents</strong>
+<ol>
+  <li><a href="#s1">Experimental Parameters</a></li>
+  <li><a href="#s2">Data Cleaning</a></li>
+  <li><a href="#s3">Equivalent Circuit Models &amp; Mathematical Derivation</a></li>
+  <li><a href="#s4">Fitting Results</a></li>
+  <li><a href="#s5">Ionic Conductivity</a></li>
+  <li><a href="#s6">Discussion &amp; Error Analysis</a></li>
+  <li><a href="#s7">Conclusions</a></li>
+</ol>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s1">1. Experimental Parameters</h2>
+
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Sample</td><td>GPE (gel polymer electrolyte) thin film</td></tr>
+<tr><td>Electrode configuration</td><td>SS | GPE | SS (symmetric blocking)</td></tr>
+<tr><td>Thickness $L$</td><td>30 μm = $3.0 \times 10^{-3}$ cm</td></tr>
+<tr><td>Electrode diameter $d$</td><td>1.0 cm → $A = 0.7854\ \mathrm{cm}^2$</td></tr>
+<tr><td>DC bias $E_{\mathrm{we}}$</td><td>0 V (vs. OCV)</td></tr>
+<tr><td>AC amplitude $V_a$</td><td>100 mV ⚠ (standard: 5–10 mV)</td></tr>
+<tr><td>Frequency range</td><td>7 MHz → 1 Hz, 10 pts/decade, logarithmic</td></tr>
+<tr><td>Instrument</td><td>BioLogic potentiostat, EC-Lab v11.62</td></tr>
+</table>
+
+<div class="warn">
+<strong>⚠ Key caveat:</strong> The 100 mV excitation amplitude far exceeds the standard 5–10 mV for linear EIS. This may drive the system into weak nonlinearity, causing charge-transfer-like behavior at the blocking electrode interface and partially explaining the second low-frequency arc observed in the data.
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s2">2. Data Cleaning: Inductive Artifact</h2>
+
+<p>At $f > 216$ kHz, $\Im(Z) > 0$ (inductive, 4th quadrant in Nyquist). This is caused by parasitic cable inductance, which dominates the impedance at MHz frequencies:</p>
+$$Z_L(\omega) = j\omega L$$
+
+<p>The 16 inductive points ($f > 216$ kHz) were removed. The remaining 53 points (171.6 kHz → 1 Hz) constitute the capacitive SPE response. The frequency $f_{\mathrm{cross}} = 171.6$ kHz where $\Im(Z) = 0$ marks the transition from cable-dominated to sample-dominated impedance, and $\Re(Z(f_{\mathrm{cross}})) = 29.74\ \Omega$ provides a lower-bound estimate of the series resistance.</p>
+
+<figure>
+<img src="figures/fig4_cleaning.png" alt="Data cleaning and fit">
+<figcaption><strong>Figure 1.</strong> (a) Raw data with inductive artifact (red) and valid data (blue). (b) Best-fit R(RQ)(RQ) model overlaid on the cleaned data, showing the two resolved arcs.</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<h2 id="s3">3. Equivalent Circuit Models &amp; Mathematical Derivation</h2>
+
+<h3>3.1 Individual Element Impedances</h3>
+
+<h4>Resistor $R$</h4>
+$$Z_R = R \tag{1}$$
+
+<h4>Capacitor $C$</h4>
+$$Z_C = \frac{1}{j\omega C}, \quad \omega = 2\pi f \tag{2}$$
+
+<h4>Constant Phase Element (CPE)</h4>
+$$Z_{\mathrm{CPE}} = \frac{1}{Q\,(j\omega)^\alpha}, \qquad 0 \leq \alpha \leq 1 \tag{3}$$
+
+<p>Separating into real and imaginary parts ($j^\alpha = e^{j\alpha\pi/2}$):</p>
+$$\Re(Z_{\mathrm{CPE}}) = \frac{\cos(\alpha\pi/2)}{Q\,\omega^\alpha}, \qquad
+  -\Im(Z_{\mathrm{CPE}}) = \frac{\sin(\alpha\pi/2)}{Q\,\omega^\alpha} \tag{4}$$
+
+<p>The exponent $\alpha$ characterizes deviation from ideality: $\alpha=1$ → ideal capacitor ($Q \equiv C$); $\alpha=0$ → ideal resistor ($Q \equiv 1/R$); $\alpha=0.5$ → Warburg diffusion.</p>
+
+<h3>3.2 $R \parallel \mathrm{CPE}$ (ZARC Element)</h3>
+
+<p>For a resistor $R$ in parallel with a CPE:</p>
+$$Z_{R\parallel\mathrm{CPE}} = \left(\frac{1}{R} + Q(j\omega)^\alpha\right)^{-1}
+  = \frac{R}{1 + R Q (j\omega)^\alpha} \tag{5}$$
+
+<p>Explicit real–imaginary decomposition (multiplying by complex conjugate):</p>
+$$\boxed{\Re = \frac{R\,[1 + R Q \omega^\alpha\cos\frac{\alpha\pi}{2}]}
+                         {1 + 2R Q \omega^\alpha\cos\frac{\alpha\pi}{2} + R^2 Q^2 \omega^{2\alpha}}} \tag{6}$$
+
+$$\boxed{-\Im = \frac{R^2 Q \omega^\alpha\sin\frac{\alpha\pi}{2}}
+                         {1 + 2R Q \omega^\alpha\cos\frac{\alpha\pi}{2} + R^2 Q^2 \omega^{2\alpha}}} \tag{7}$$
+
+<p>The effective capacitance of a CPE in parallel with $R$ is <a href="#ref-brug">[Brug et al., 1984]</a>:</p>
+$$C_{\mathrm{eff}} = Q^{1/\alpha}\, R^{(1-\alpha)/\alpha} \tag{8}$$
+
+<p>Characteristic (peak) frequency of the $R \parallel \mathrm{CPE}$ arc:</p>
+$$\omega_c = \frac{1}{R\,C_{\mathrm{eff}}} = \frac{1}{R^{1/\alpha}\,Q^{1/\alpha}}, \qquad
+  f_c = \frac{\omega_c}{2\pi} \tag{9}$$
+
+<h3>3.3 R(RQ)(RQ) — Two ZARC Elements in Series</h3>
+
+<p>The best-fitting model for this dataset consists of a series resistor $R_0$ followed by two $R \parallel \mathrm{CPE}$ elements:</p>
+
+<figure>
+<img src="figures/fig3_circuit.png" alt="Circuit">
+<figcaption><strong>Figure 2.</strong> Equivalent circuit $R_0 + (R_1 \parallel \mathrm{CPE}_1) + (R_2 \parallel \mathrm{CPE}_2)$ with the total impedance function.</figcaption>
+</figure>
+
+$$Z_{\mathrm{total}}(\omega) = R_0 + \frac{R_1}{1 + R_1 Q_1 (j\omega)^{\alpha_1}} + \frac{R_2}{1 + R_2 Q_2 (j\omega)^{\alpha_2}} \tag{10}$$
+
+<h4>Physical Interpretation of the Two Arcs</h4>
+<ol>
+  <li><strong>Arc 1 (high frequency, $f_{c,1} \approx 46$ Hz):</strong> $R_1 = 653\ \Omega$, $C_{\mathrm{eff},1} = 5.3\ \mu\mathrm{F}$. This arc represents the bulk ionic transport in the GPE. The depressed shape ($\alpha_1 = 0.68$) reflects polymer chain heterogeneity.</li>
+  <li><strong>Arc 2 (low frequency, $f_{c,2} \approx 0.13$ Hz):</strong> $R_2 = 3455\ \Omega$, $C_{\mathrm{eff},2} = 361\ \mu\mathrm{F}$. The very large effective capacitance and low characteristic frequency are consistent with electrode polarization at a blocking interface, possibly with a Faradaic component induced by the 100 mV overpotential.</li>
+</ol>
+
+<h3>3.4 Limiting Behavior</h3>
+
+<h4>High-frequency limit ($\omega \to \infty$)</h4>
+<p>Both CPEs become short circuits → $Z \to R_0$. The Nyquist intercept with the real axis is $R_0 = 20.2\ \Omega$.</p>
+
+<h4>Low-frequency limit ($\omega \to 0$)</h4>
+<p>Both CPEs become open circuits → $Z \to R_0 + R_1 + R_2 = 4128\ \Omega$. This is the DC resistance of the system.</p>
+
+<h4>Mid-frequency plateau</h4>
+<p>Between the two characteristic frequencies ($f_{c,2} \ll f \ll f_{c,1}$), $\mathrm{CPE}_1$ is a short, $\mathrm{CPE}_2$ is open → $Z \approx R_0 + R_1 = 673\ \Omega$. This plateau is visible as the inflection between the two arcs in the Nyquist plot.</p>
+
+<h3>3.5 Why Not a Blocking-Electrode Model?</h3>
+
+<p>The classical blocking-electrode model $R_0 + (R_b \parallel \mathrm{CPE}_b) + \mathrm{CPE}_{dl}$ (with the second element being a series CPE, not a parallel R//CPE) was tested but gave a poor fit ($\chi^2/N \approx 2200$–$3400$). Two factors explain the failure:</p>
+<ol>
+  <li>The 100 mV AC amplitude likely induces a weak Faradaic reaction at the SS electrode interface, transforming the ideally polarizable (capacitive) interface into one with a finite charge-transfer resistance → $R_2$.</li>
+  <li>The CPE exponent of the blocking tail would be $\alpha_{dl} \approx 0.3$, creating a strongly inclined line that the R(RQ)(RQ) model approximates as the onset of a second, very broad arc. At 1 Hz, the lowest measured frequency, the second arc is only partially resolved.</li>
+</ol>
+
+<!-- ================================================================ -->
+<h2 id="s4">4. Fitting Results</h2>
+
+<figure>
+<img src="figures/fig2_fit.png" alt="Fitting results">
+<figcaption><strong>Figure 3.</strong> R(RQ)(RQ) fit with component decomposition. (a) Nyquist plot showing the two resolved arcs. (b) Bode magnitude. (c) Bode phase — the model captures the characteristic phase peak at ~100 Hz and the low-frequency plateau. (d,e) Residuals: Re(Z) within ±25%, −Z″ within ±16%.</figcaption>
+</figure>
+
+<table>
+<caption><strong>Table 1.</strong> Fitted parameters: $R_0 + (R_1 \parallel \mathrm{CPE}_1) + (R_2 \parallel \mathrm{CPE}_2)$.</caption>
+<tr><th>Parameter</th><th>Symbol</th><th>Value</th><th>Physical Interpretation</th></tr>
+<tr><td>Series resistance</td><td>$R_0$</td><td>20.2 Ω</td><td>Contact + cable + residual electrolyte</td></tr>
+<tr><td>Arc 1 resistance</td><td>$R_1$</td><td>653 Ω</td><td>Bulk ionic migration</td></tr>
+<tr><td>Arc 1 CPE</td><td>$Q_1$</td><td>$3.25 \times 10^{-5}$ S·s$^\alpha$</td><td></td></tr>
+<tr><td>Arc 1 exponent</td><td>$\alpha_1$</td><td>0.68</td><td>Moderately depressed semicircle</td></tr>
+<tr><td>Arc 2 resistance</td><td>$R_2$</td><td>3455 Ω</td><td>Electrode interface (pseudo-Faradaic)</td></tr>
+<tr><td>Arc 2 CPE</td><td>$Q_2$</td><td>$3.27 \times 10^{-4}$ S·s$^\alpha$</td><td></td></tr>
+<tr><td>Arc 2 exponent</td><td>$\alpha_2$</td><td>0.55</td><td>Broad interfacial dispersion</td></tr>
+<tr><td colspan="4"><strong>Derived quantities</strong></td></tr>
+<tr><td>Arc 1 eff. capacitance</td><td>$C_{\mathrm{eff},1}$</td><td>5.3 μF</td><td>$= Q_1^{1/\alpha_1} R_1^{(1-\alpha_1)/\alpha_1}$</td></tr>
+<tr><td>Arc 1 char. frequency</td><td>$f_{c,1}$</td><td>46 Hz</td><td>$= 1/(2\pi R_1 C_{\mathrm{eff},1})$</td></tr>
+<tr><td>Arc 2 eff. capacitance</td><td>$C_{\mathrm{eff},2}$</td><td>361 μF (460 μF/cm²)</td><td>$= Q_2^{1/\alpha_2} R_2^{(1-\alpha_2)/\alpha_2}$</td></tr>
+<tr><td>Arc 2 char. frequency</td><td>$f_{c,2}$</td><td>0.13 Hz</td><td>$= 1/(2\pi R_2 C_{\mathrm{eff},2})$</td></tr>
+<tr><td>DC resistance</td><td>$R_{\mathrm{DC}}$</td><td>4128 Ω</td><td>$R_0 + R_1 + R_2$</td></tr>
+<tr><td>Reduced $\chi^2$</td><td>$\chi^2/(N-p)$</td><td>23.0</td><td>7 params, 106 data points</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="s5">5. Ionic Conductivity</h2>
+
+<p>Two possible interpretations of the data lead to different conductivity estimates:</p>
+
+<table>
+<tr><th>Method</th><th>$R$ (Ω)</th><th>$\sigma$ (S/cm)</th><th>Basis</th></tr>
+<tr><td><strong>Zero-crossing</strong></td><td>29.74</td><td>$1.28 \times 10^{-4}$</td><td>$\Im(Z)=0$ at 171.6 kHz gives $R_0$ + bulk tail</td></tr>
+<tr><td><strong>R(RQ)(RQ) fit — $R_1$ only</strong></td><td>653</td><td>$5.85 \times 10^{-6}$</td><td>$R_1$ = bulk ionic transport</td></tr>
+<tr><td><strong>R(RQ)(RQ) fit — DC limit</strong></td><td>4128</td><td>$9.25 \times 10^{-7}$</td><td>$R_0+R_1+R_2$ = total DC resistance</td></tr>
+</table>
+
+<div class="note">
+<strong>Recommended value:</strong> The most physically justified conductivity uses $R_1 = 653\ \Omega$ (Arc 1 only, representing bulk ionic transport), giving:
+$$\sigma = \frac{L}{R_1 \cdot A} = \frac{3.0 \times 10^{-3}\ \mathrm{cm}}{653\ \Omega \times 0.7854\ \mathrm{cm}^2} = \boxed{5.85 \times 10^{-6}\ \mathrm{S\,cm^{-1}}}$$
+This is 20× lower than the zero-crossing estimate but is supported by the actual fit to the data. It places the material in the "good PEO-based SPE" range ($10^{-6}$–$10^{-5}$ S/cm) rather than the "GPE/superionic" range ($>10^{-4}$ S/cm). The zero-crossing method, while commonly used, conflates the true contact resistance $R_0$ with the residual bulk arc tail and substantially underestimates $R_b$ when the bulk arc is partially obscured by the inductive artifact.
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s6">6. Discussion &amp; Error Analysis</h2>
+
+<ol>
+  <li><strong>Excitation amplitude (100 mV).</strong> The most significant source of systematic error. Standard EIS for SPEs uses 5–10 mV to maintain linearity. At 100 mV, the nonlinear response creates the second arc ($R_2 = 3455\ \Omega$, $C_{\mathrm{eff},2} = 361\ \mu\mathrm{F}$), which likely would be a pure capacitive tail ($\mathrm{CPE}_{dl}$) under proper linear conditions. The bulk resistance $R_1 = 653\ \Omega$ may also be underestimated due to field-enhanced ion transport.</li>
+
+  <li><strong>Incomplete low-frequency data.</strong> The lowest measured frequency (1 Hz) is above the characteristic frequency of Arc 2 ($f_{c,2} = 0.13$ Hz). The second arc is therefore only partially resolved, making $R_2$ and $\alpha_2$ less reliable than $R_1$ and $\alpha_1$. Extending the measurement to 0.01 Hz would fully resolve Arc 2 and clarify whether it is truly a semicircle or a CPE tail.</li>
+
+  <li><strong>Cable artifact removal.</strong> The 16 removed points ($f > 216$ kHz) contain the high-frequency side of Arc 1, including the true $R_0$ intercept. The fitted $R_0 = 20.2\ \Omega$ is therefore a model extrapolation, not a direct measurement.</li>
+
+  <li><strong>Thickness uncertainty.</strong> At 30 μm, ±5 μm thickness variation propagates to ±17 % uncertainty in $\sigma$.</li>
+
+  <li><strong>Temperature.</strong> Not recorded. SPE conductivity is strongly temperature-dependent (Arrhenius/VFT). The reported value applies only at the (unknown) measurement temperature.</li>
+</ol>
+
+<!-- ================================================================ -->
+<h2 id="s7">7. Conclusions</h2>
+
+<ol>
+  <li><strong>Best-fitting model:</strong> $R_0 + (R_1 \parallel \mathrm{CPE}_1) + (R_2 \parallel \mathrm{CPE}_2)$ with $\chi^2/(N-p) = 23.0$ — dramatically better than the classical blocking-electrode model $R_0 + (R_b \parallel \mathrm{CPE}_b) + \mathrm{CPE}_{dl}$ ($\chi^2/N > 2000$).</li>
+
+  <li><strong>Bulk ionic resistance:</strong> $R_1 = 653\ \Omega$ ($f_c = 46$ Hz, $C_{\mathrm{eff}} = 5.3\ \mu\mathrm{F}$). The zero-crossing at 171.6 kHz (29.7 Ω) is identified as $R_0$ + residual bulk tail, not the full bulk resistance.</li>
+
+  <li><strong>Ionic conductivity:</strong> $\sigma = 5.85 \times 10^{-6}\ \mathrm{S\,cm^{-1}}$ (from $R_1$). This places the material in the "good PEO-based SPE" performance tier.</li>
+
+  <li><strong>Electrode interface:</strong> The second arc ($R_2 = 3455\ \Omega$, $f_c = 0.13$ Hz) is interpreted as a pseudo-Faradaic process at the SS electrode, induced by the excessive 100 mV AC amplitude. Under proper 10 mV excitation, this feature would likely appear as a capacitive blocking tail.</li>
+
+  <li><strong>Recommendations:</strong>
+    <ul>
+      <li>Repeat measurement with 10 mV amplitude — this is the single most important correction</li>
+      <li>Extend low-frequency limit to 0.01–0.1 Hz to fully resolve Arc 2</li>
+      <li>Use shorter, shielded cables to push the inductive artifact above 1 MHz</li>
+      <li>Perform temperature-dependent EIS (25–80 °C) for activation energy</li>
+    </ul>
+  </li>
+</ol>
+
+<hr style="margin: 2rem 0;">
+
+<h3>References</h3>
+<ol style="font-size: 0.9rem;">
+  <li id="ref-brug">G. J. Brug, A. L. G. van den Eeden, M. Sluyters-Rehbach, and J. H. Sluyters, "The analysis of electrode impedances complicated by the presence of a constant phase element," <em>J. Electroanal. Chem.</em>, vol. 176, pp. 275–295, 1984.</li>
+  <li id="ref-irvine">J. T. S. Irvine, D. C. Sinclair, and A. R. West, "Electroceramics: Characterization by impedance spectroscopy," <em>Adv. Mater.</em>, vol. 2, pp. 132–138, 1990.</li>
+  <li id="ref-barsoukov">E. Barsoukov and J. R. Macdonald (eds.), <em>Impedance Spectroscopy: Theory, Experiment, and Applications</em>, 3rd ed., Wiley, 2018.</li>
+  <li id="ref-berthier">C. Berthier et al., "Microscopic investigation of ionic conductivity in alkali metal salts–PEO adducts," <em>Solid State Ionics</em>, vol. 11, pp. 91–95, 1983.</li>
+  <li id="ref-orazem">M. E. Orazem and B. Tribollet, <em>Electrochemical Impedance Spectroscopy</em>, 2nd ed., Wiley, 2017.</li>
+</ol>
+
+<hr style="margin: 2rem 0 1rem;">
+<p style="font-size:0.85rem; color:#888;">
+<strong>Data:</strong> <code>GPE_h3_131_C01.mpr</code> &ensp;|&ensp;
+<strong>Analysis:</strong> Python (galvani + impedance + SciPy) &ensp;|&ensp;
+<strong>Generated:</strong> 2026-05-12
+</p>
+</body>
+</html>
