@@ -27,3 +27,7 @@ archive/
 # Raw data directory
 data/
 reports/
+
+# Group-internal docs (not for public repo)
+AUDIT_REPORT.md
+CLAUDE.md
