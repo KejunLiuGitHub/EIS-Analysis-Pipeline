@@ -1,207 +1,190 @@
-# EIS 批量分析流水线
+# EIS Batch Analysis Pipeline
 
-零代码修改的 EIS（电化学阻抗谱）批量分析系统。自动扫描 `.mpr` 文件、解析实验参数、拟合等效电路、生成交互式 HTML 报告，并支持模型偏好记忆。
+A zero-code batch analysis system for Electrochemical Impedance Spectroscopy (EIS). Auto-scans `.mpr` files, parses experimental parameters, fits equivalent-circuit models, generates interactive HTML reports, and learns model preferences per project.
+
+[中文文档](README_CN.md)
 
 ---
 
-## 环境安装
+## Installation
 
 ```bash
-# 1. 克隆/进入项目目录
+# 1. Clone / enter the repository
 cd /path/to/this/repo
 
-# 2. 安装依赖（Python 3.11+）
-pip install galvani impedance==1.7.1 numpy plotly
+# 2. Install dependencies (Python 3.11+)
+pip install -e .
 
-# 3. 验证
+# 3. Verify
 eis-pipeline --help
 ```
 
-依赖版本建议：
-- `galvani` — 读取 BioLogic `.mpr`
-- `impedance==1.7.1` — 等效电路拟合（注意：1.7.1 有已知 bug，已内部修复）
-- `numpy` — 数值计算
-- `plotly` — 交互式图表
+**Dependencies**
+- `galvani` — read BioLogic `.mpr` files
+- `impedance==1.7.1` — equivalent-circuit fitting (known bug in 1.7.1 is internally patched)
+- `numpy` — numerical computing
+- `plotly` — interactive plots
 
 ---
 
-## 文件名命名规则（重要）
+## Filename Convention (Important)
 
-**必须**按以下格式命名 `.mpr` 文件，程序才能自动提取参数：
-
-```
-实验人员_ProjectName_DATE_YYYYMMDD_厚度µm_直径cm_温度°C_其他代码.mpr
-```
-
-### 示例
+**You must** follow this naming scheme so the program can auto-extract parameters:
 
 ```
-张三_GPE_h3_131_DATE_20250513_30_1_25_C01.mpr
+Operator_ProjectName_DATE_YYYYMMDD_Thickness_um_Diameter_cm_Temperature_C_OtherCode.mpr
 ```
 
-| 字段 | 值 | 说明 |
-|------|-----|------|
-| 实验人员 | `张三` | 操作人员姓名 |
-| ProjectName | `GPE_h3_131` | 项目/样品系列名，可含下划线 |
-| `DATE` | 固定 | 锚点字段，必须大写 |
-| YYYYMMDD | `20250513` | 测试日期 |
-| 厚度 | `30` | 薄膜厚度，单位 µm |
-| 直径 | `1` | 电极直径，单位 cm |
-| 温度 | `25` | 测试温度，单位 °C |
-| 其他代码 | `C01` | 批次/重复编号等 |
+### Example
 
-### 不合规文件名
+```
+Zhangsan_GPE_h3_131_DATE_20250513_30_1_25_C01.mpr
+```
 
-如果文件名不符合上述规则，程序会提示你**手动输入**所有参数。
+| Field | Value | Description |
+|-------|-------|-------------|
+| Operator | `Zhangsan` | experimenter name |
+| ProjectName | `GPE_h3_131` | project / sample series (underscores allowed) |
+| `DATE` | fixed | anchor field, must be uppercase |
+| YYYYMMDD | `20250513` | test date |
+| Thickness | `30` | film thickness in µm |
+| Diameter | `1` | electrode diameter in cm |
+| Temperature | `25` | test temperature in °C |
+| OtherCode | `C01` | batch / replicate ID |
+
+### Non-compliant filenames
+
+If the filename does not match the convention, the program will **prompt you manually** for all parameters.
 
 ---
 
-## 使用方法
+## Usage
 
-### 1. 扫描 — 查看有哪些新数据
+### 1. Scan — list new data
 
 ```bash
 eis-pipeline scan data/
 ```
 
-输出示例：
+Sample output:
 
 ```
-🔍 发现 3 个新样品：
+🔍 3 new samples found:
 
-序号   文件名                                                人员       项目              日期         L(µm)    d(cm)    T(°C)    代码
+No.  Filename                                               Operator   Project           Date       L(µm)  d(cm)  T(°C)  Code
 ---------------------------------------------------------------------------------------------------------------------------------
-1    张三_GPE_h3_131_DATE_20250513_30_1_25_C01            张三       GPE_h3_131      20250513   30.0     1.0      25.0     C01
-2    张三_GPE_h3_131_DATE_20250513_30_1_60_C02            张三       GPE_h3_131      20250513   30.0     1.0      60.0     C02
-3    李四_SPE_3h_131_DATE_20250513_40_1_80_C01            李四       SPE_3h_131      20250513   40.0     1.0      80.0     C01
+1    Zhangsan_GPE_h3_131_DATE_20250513_30_1_25_C01          Zhangsan   GPE_h3_131      20250513   30.0   1.0    25.0   C01
+2    Zhangsan_GPE_h3_131_DATE_20250513_30_1_60_C02          Zhangsan   GPE_h3_131      20250513   30.0   1.0    60.0   C02
+3    Lisi_SPE_3h_131_DATE_20250513_40_1_80_C01              Lisi       SPE_3h_131      20250513   40.0   1.0    80.0   C01
 ```
 
-已处理过的样品（存在对应的 `eis_analysis_*.html`）不会重复列出。
+Already-processed samples (with a corresponding `eis_analysis_*.html`) are skipped.
 
 ---
 
-### 2. 批量处理 — 生成单样品报告
+### 2. Process — generate per-sample reports
 
 ```bash
 eis-pipeline process data/
 ```
 
-交互流程：
+Interactive flow:
 
-**① 合规文件名（自动解析）**
-
-```
-[1/3] 张三_GPE_h3_131_DATE_20250513_30_1_25_C01
-  解析: 人员=张三 | 项目=GPE_h3_131 | 日期=20250513 | L=30µm | d=1cm | T=25°C | 代码=C01
-  确认处理? [Y/n/编辑(e)]: Y
-  处理中: 张三_GPE_h3_131_DATE_20250513_30_1_25_C01 ... ✅  WARN | σ=5.85e-06
-```
-
-**② 有历史偏好模型时**
-
-同一项目累计处理 ≥3 次后，系统会自动学习最佳模型：
+**① Compliant filename (auto-parsed)**
 
 ```
-📌 历史偏好模型: R(RQ)(RQ) (来源:auto, 胜出:3/4)
-使用偏好模型? [Y/四模型竞争(a)/编辑(e)]: Y
-⚡ 使用偏好模型: R(RQ)(RQ)
+[1/3] Zhangsan_GPE_h3_131_DATE_20250513_30_1_25_C01
+  Parsed: operator=Zhangsan | project=GPE_h3_131 | date=20250513 | L=30µm | d=1cm | T=25°C | code=C01
+  Process? [Y/n/edit(e)]: Y
+  Processing: Zhangsan_GPE_h3_131_DATE_20250513_30_1_25_C01 ... ✅  WARN | σ=5.85e-06
 ```
 
-| 选项 | 行为 |
-|------|------|
-| `Y` / 回车 | 只拟合偏好模型（更快） |
-| `a` | 忽略偏好，四模型竞争 |
-| `e` | 编辑参数，可强制指定模型 |
+**② Historical model preference available**
 
-**③ 编辑模式（强制指定模型）**
+After a project has been processed ≥3 times, the system auto-learns the best model:
 
 ```
---- 编辑参数 (直接回车保留原值) ---
-  实验人员 [张三]:
+📌 Historical preference: R(RQ)(RQ) (source:auto, wins:3/4)
+Use preferred model? [Y/all-models(a)/edit(e)]: Y
+⚡ Using preferred model: R(RQ)(RQ)
+```
+
+| Option | Behavior |
+|--------|----------|
+| `Y` / Enter | fit only the preferred model (faster) |
+| `a` | ignore preference, run full 4-model competition |
+| `e` | edit parameters; can force a specific model |
+
+**③ Edit mode (force a model)**
+
+```
+--- Edit parameters (press Enter to keep current) ---
+  Operator [Zhangsan]:
   ...
-  可选模型: R(RQ), R(RQ)(RQ), R(RQ)CPE, R(R,C)CPE
-  留空 = 自动选择
-  强制指定模型 []: R(RQ)
-    ✅ 已强制指定: R(RQ)
+  Available models: R(RQ), R(RQ)(RQ), R(RQ)CPE, R(R,C)CPE
+  Leave blank for auto-selection
+  Force model []: R(RQ)
+    ✅ Forced: R(RQ)
 ```
 
-强制指定的模型会覆盖历史偏好，并记录为 `source: manual`。
+A forced model overrides the historical preference and is recorded as `source: manual`.
 
-**④ 不合规文件名（手动输入）**
+**④ Non-compliant filename (manual input)**
 
 ```
-文件名 'GPE_h3_101_C02' 不合规，请手动输入参数：
-  实验人员: 张三
-  项目名: GPE_h3_101
-  日期 (YYYYMMDD): 20250513
-  厚度 (µm): 100
-  电极直径 (cm) [默认1.0]: 1
-  温度 (°C) [默认25]: 25
-  其他代码: C02
-  样品名称 [默认GPE_h3_101_C02]:
+Filename 'GPE_h3_101_C02' is non-compliant, please enter manually:
+  Operator: Zhangsan
+  Project: GPE_h3_101
+  Date (YYYYMMDD): 20250513
+  Thickness (µm): 100
+  Electrode diameter (cm) [default 1.0]: 1
+  Temperature (°C) [default 25]: 25
+  Other code: C02
+  Sample name [default GPE_h3_101_C02]:
 ```
 
 ---
 
-### 3. 对比 — 生成重叠对比图
+### 3. Combine — overlay comparison report
 
 ```bash
 eis-pipeline combine
 ```
 
-交互流程：
+Interactive flow:
 
 ```
-📦 发现 5 个已有样品：
+📦 5 processed samples found:
 
-编号   样品名                                      人员       项目           日期         温度       质量         σ(S/cm)
+No.  Sample name                                      Operator   Project         Date       Temp   Quality   σ(S/cm)
 ---------------------------------------------------------------------------------------------------------------
-1    张三_GPE_h3_131_DATE_20250513_30_1_25_C01  张三       GPE_h3_131   20250513   25.0     WARN       5.850e-06
+1    Zhangsan_GPE_h3_131_DATE_20250513_30_1_25_C01    Zhangsan   GPE_h3_131    20250513   25.0   WARN      5.850e-06
 ...
 
-请选择样品编号（逗号分隔，如 1,3,5）: 1,2,3
-对比标题: GPE_h3_131 温度对比
-生成对比图...
+Select sample numbers (comma-separated, e.g. 1,3,5): 1,2,3
+Comparison title: GPE_h3_131 temperature series
+Generating plots...
 
-✅ 对比报告已保存: eis_compare_20250513_143052.html
+✅ Comparison saved: eis_compare_20250513_143052.html
 ```
 
-生成的对比报告包含：
-- Nyquist 重叠图（数据点 + 拟合曲线）
-- Bode 重叠图（|Z| 和相位）
-- THD 重叠图
+The comparison report includes:
+- Nyquist overlay (data points + fitted curves)
+- Bode overlay (|Z| and phase)
+- THD overlay
 
 ---
 
-## 输出文件
+## Model Preference Mechanism
 
-每个样品处理后会在 **数据目录** 下生成：
+The system automatically tracks the best-fitting model per project:
 
-| 文件 | 说明 |
-|------|------|
-| `eis_analysis_<name>.html` | 单样品完整报告（Nyquist / Bode / THD / 模型对比 / 参数表） |
-| `eis_meta_<name>.json` | 元数据，供 `combine` 调用 |
-| `eis_pipeline.log` | 处理日志，append 模式 |
-| `eis_model_prefs.json` | 模型偏好记忆（自动维护） |
+- After each sample is processed, the winning model is recorded
+- When a model wins **≥3 times** with **>50%** win rate for a project → auto-promoted to preference
+- Next time a sample from the same project is processed, the preferred model is recommended (single-model fit = faster)
+- You can always override with `a` (all models) or `e` (force a model)
 
-`combine` 在 **当前目录** 生成：
-
-| 文件 | 说明 |
-|------|------|
-| `eis_compare_<timestamp>.html` | 多样品重叠对比报告 |
-
----
-
-## 模型偏好机制
-
-系统会自动记录每个项目（ProjectName）的最佳拟合模型：
-
-- 处理完一个样品后，自动统计最佳模型
-- 同一项目某模型胜出 **≥3 次** 且 **>50%** → 自动提升为偏好模型
-- 下次处理同项目样品时，优先推荐使用该模型（拟合更快）
-- 可随时用 `a`（四模型竞争）或 `e`（强制指定）覆盖
-
-偏好文件 `eis_model_prefs.json` 示例：
+Preference file `eis_model_prefs.json` example:
 
 ```json
 {
@@ -216,52 +199,72 @@ eis-pipeline combine
 
 ---
 
-## 目录结构
+## Output Files
+
+After processing a sample, the following are created in the **data directory**:
+
+| File | Description |
+|------|-------------|
+| `eis_analysis_<name>.html` | Full per-sample report (Nyquist / Bode / THD / model comparison / parameters) |
+| `eis_meta_<name>.json` | Metadata for `combine` |
+| `eis_pipeline.log` | Audit trail (append-only) |
+| `eis_model_prefs.json` | Model preference memory (auto-maintained) |
+
+`combine` creates in the **current directory**:
+
+| File | Description |
+|------|-------------|
+| `eis_compare_<timestamp>.html` | Multi-sample overlay comparison report |
+
+---
+
+## Directory Structure
 
 ```
 .
-├── data/                    ← 原始 .mpr 数据（gitignored）
+├── data/                    ← raw .mpr data (gitignored)
 │   ├── readme.txt
 │   ├── *.mpr / *.mps / *.sta
 │   └── activity_energy/
-├── eislib/                  ← 核心库
-│   ├── data.py              数据读取 + 拟合
-│   ├── fit.py               等效电路拟合
-│   ├── plot.py              Plotly 图表
-│   ├── html_single.py       HTML 报告模板
-│   ├── kk.py                K-K 验证
+├── eislib/                  ← core library
+│   ├── data.py              data I/O + fitting
+│   ├── fit.py               equivalent-circuit fitting
+│   ├── plot.py              Plotly figures
+│   ├── html_single.py       HTML report template
+│   ├── kk.py                Kramers–Kronig validation
 │   └── ...
-├── eis_pipeline.py          ← 主入口（scan / process / combine）
-├── analyze_one.py           ← 单样品快速分析
-├── figures/                 ← 发表级图表
-├── reports/                 ← 报告模板
-├── lessons/                 ← 分析经验记录
-├── archive/                 ← 旧脚本和报告（gitignored）
+├── eis_pipeline.py          ← main entry (scan / process / combine)
+├── analyze_one.py           ← quick single-sample CLI
+├── figures/                 ← publication-grade figures
+├── reports/                 ← report templates (gitignored)
+├── lessons/                 ← analysis knowledge base
+├── archive/                 ← old scripts & reports (gitignored)
 ├── README.md
+├── README_CN.md
 └── .gitignore
 ```
 
 ---
 
-## 常见问题
+## FAQ
 
-**Q: 为什么扫描时显示"不合规"？**
-> 文件名必须包含 `DATE_YYYYMMDD` 锚点。检查是否有下划线分隔、日期是否为 8 位数字。
+**Q: Why does scan say "non-compliant"?**
+> The filename must contain the `DATE_YYYYMMDD` anchor. Check underscores and 8-digit date format.
 
-**Q: 电极直径不是 1cm 怎么办？**
-> 文件名第 6 个字段填写实际直径（如 `1.5`），程序会自动计算面积 `A = π·(d/2)²`。
+**Q: My electrode diameter is not 1 cm.**
+> Put the actual diameter in the 6th field (e.g. `1.5`). Area is auto-computed as `A = π·(d/2)²`.
 
-**Q: 偏好模型拟合失败怎么办？**
-> 程序会自动回退到四模型竞争。日志中会有 `Preferred model 'X' failed, falling back to full pool` 提示。
+**Q: Preferred model failed to fit.**
+> The program automatically falls back to the full 4-model pool. Log shows `Preferred model 'X' failed, falling back to full pool`.
 
-**Q: 想重新开始，清除所有偏好？**
-> 删除数据目录下的 `eis_model_prefs.json` 即可。
+**Q: How to reset all preferences?**
+> Delete `eis_model_prefs.json` in the data directory.
 
-**Q: HTML 报告打开后是空白的？**
-> 需要联网加载 Plotly CDN。若在无网环境，可修改 `eislib/html_single.py` 使用本地 plotly.js。
+**Q: HTML report opens blank.**
+> Internet is required to load Plotly CDN. For offline use, modify `eislib/html_single.py` to use a local plotly.js.
 
 ---
 
-## 作者
+## License
 
-刘珂君 — 2025
+MIT
