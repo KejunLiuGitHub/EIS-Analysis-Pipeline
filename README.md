@@ -1,6 +1,10 @@
 # EIS Batch Analysis Pipeline
 
-A zero-code batch analysis system for Electrochemical Impedance Spectroscopy (EIS). Auto-scans `.mpr` files, parses experimental parameters, fits equivalent-circuit models, generates interactive HTML reports, and learns model preferences per project.
+A zero-code batch analysis system for Electrochemical Impedance Spectroscopy (EIS) that **reads BioLogic `.mpr` files directly** and produces **standalone interactive HTML reports**.
+
+**Input:** BioLogic EC-Lab `.mpr` binary files  
+**Output:** Self-contained `.html` reports with interactive Plotly figures  
+**Analysis included:** Nyquist & Bode plots, 4-model equivalent-circuit fitting comparison, THD (harmonic distortion), Kramers–Kronig validation residuals, Arrhenius conductivity, and automatic quality grading
 
 [中文文档](README_CN.md)
 
@@ -199,13 +203,31 @@ Preference file `eis_model_prefs.json` example:
 
 ---
 
+## What Each HTML Report Contains
+
+Every generated `eis_analysis_<name>.html` is a **standalone, offline-capable** report (requires internet only for Plotly CDN). It includes:
+
+| Section | Content |
+|---------|---------|
+| **Nyquist & Fitting** | Raw data with inductive artifacts marked; cleaned data with best-fit equivalent-circuit overlay; arc decomposition for multi-arc models |
+| **Model Comparison** | All 4 candidate models (R(RQ), R(RQ)(RQ), R(RQ)CPE, R(R,C)CPE) overlaid on the same plot, with χ²/N values — see at a glance which model fits best |
+| **Bode & Residuals** | Magnitude, phase, and relative residuals vs frequency |
+| **Harmonic Distortion (THD)** | THD Ewe and THD I vs frequency; 5% nonlinearity threshold marked |
+| **Fitted Parameters** | R₀, R₁, R₂, Q, α, C_eff, characteristic frequencies f_c, ionic conductivity σ |
+| **Model Comparison Table** | Side-by-side χ²/N, R₀, R₁, σ for all 4 models; best model highlighted |
+| **Quality Flag** | OK / WARN / LIMITED / POOR / DO NOT USE — with specific warning messages |
+
+The `combine` report overlays multiple samples for direct visual comparison.
+
+---
+
 ## Output Files
 
 After processing a sample, the following are created in the **data directory**:
 
 | File | Description |
 |------|-------------|
-| `eis_analysis_<name>.html` | Full per-sample report (Nyquist / Bode / THD / model comparison / parameters) |
+| `eis_analysis_<name>.html` | Standalone interactive HTML report (all sections above) |
 | `eis_meta_<name>.json` | Metadata for `combine` |
 | `eis_pipeline.log` | Audit trail (append-only) |
 | `eis_model_prefs.json` | Model preference memory (auto-maintained) |
